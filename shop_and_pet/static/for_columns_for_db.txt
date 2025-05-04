@@ -1,0 +1,52 @@
+Таблица advice_rules
+Назначение: Хранение правил или рекомендаций, связанных с уходом за питомцами.
+
+Поле	                                Для каких данных (пример)                                   Тип данных
+id	                                    Уникальный идентификатор записи	                            SERIAL
+pet_type_id	                            Идентификатор типа питомца (ссылка на pet_types)	        INTEGER
+breed_id	                            Идентификатор породы (ссылка на breeds)	                    INTEGER
+advice_text	                            Текст рекомендации	                                        TEXT
+frequency	                            Периодичность в днях	                                    INTEGER
+last_advised	                        Дата последней рекомендации	                                DATE
+
+
+
+Таблица pet_reminders
+Назначение: Хранение напоминаний о предстоящих процедурах для питомцев.
+
+Поле	                                Для каких данных (пример)	                                Тип данных
+id	                                    Уникальный идентификатор записи	                            SERIAL
+pet_id	                                Идентификатор питомца (ссылка на pet_profiles)	            INTEGER
+procedure_type	                        Тип процедуры (например, "вакцинация")	                    character varying(50)
+procedure_name	                        Название процедуры (например, "От бешенства")	            character varying(100)
+next_date	                            Дата следующей процедуры	                                DATE
+cycle_days	                            Периодичность в днях (NULL для разовых процедур)	        INTEGER
+is_active	                            Активно ли напоминание (true всегда)                        BOOLEAN
+notes	                                Дополнительные заметки	                                    TEXT
+
+
+Таблица pet_profiles
+Назначение: Хранение основной информации о питомцах.
+
+Поле	                                Для каких данных (пример)	                                Тип данных
+pet_id                                    Уникальный идентификатор записи	                            SERIAL
+name_type	                            Тип питомца	(Кошка/собака)                                  character varying(255)
+breed	                                Порода питомца	                                            character varying(255)
+age_y	                                Возраст питомца (года)	                                    INTEGER
+allergies	                            Аллергии (через запятую)	                                TEXT
+name_pet                                Имя питомца                                                 character varying(255
+age_m	                                Возраст питомца	(месяца)                                    INTEGER
+
+Таблица pet_procedures
+Назначение: Хранение информации о проведенных процедурах для питомцев.
+
+Поле	                                Для каких данных (пример)	                                Тип данных
+id	                                    Уникальный идентификатор записи	                            SERIAL
+pet_id	                                Идентификатор питомца (ссылка на pet_profiles)	            INTEGER
+procedure_type	                        Тип процедуры (например, "вакцинация")	                    character varying(50)
+procedure_date	                        Дата проведения процедуры	                                DATE
+procedure_name	                        Название процедуры (например, "От бешенства")	            character varying(100)
+name_type	                            Тип питомца	(Кошка/собака)                                  character varying(255)
+breed	                                Порода питомца	                                            character varying(255)
+
+

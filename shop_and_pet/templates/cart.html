@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина - PetShop</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Ваша корзина</h1>
+        <a href="/shop" class="back-link">← Вернуться в магазин</a>
+    </header>
+
+    <div class="cart-actions">
+        <button id="clear-cart-btn" class="clear-cart-btn">
+            <i class="material-icons">delete_sweep</i> Очистить корзину
+        </button>
+    </div>
+
+    <div class="cart-items">
+        {% for item in cart_items %}
+        <div class="cart-item" data-item-id="{{ item.id }}">
+            <div class="item-info">
+                <h3>{% if item.item_type == 'pet_food' %}Корм{% else %}Лекарство{% endif %} #{{ item.item_id }}</h3>
+                <p class="item-price">{{ item.price }} руб. × <span class="item-quantity">{{ item.quantity }}</span></p>
+                <p class="item-total">Итого: <span>{{ item.price * item.quantity }}</span> руб.</p>
+            </div>
+            <div class="item-actions">
+                <button class="quantity-btn minus" onclick="updateQuantity({{ item.id }}, -1)">
+                    <i class="material-icons">remove</i>
+                </button>
+                <button class="quantity-btn plus" onclick="updateQuantity({{ item.id }}, 1)">
+                    <i class="material-icons">add</i>
+                </button>
+                <button class="remove-btn" onclick="removeCartItem({{ item.id }})">
+                    <i class="material-icons">delete</i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="cart-total">
+        <h3>Итого: <span id="grand-total">{{ total_price }}</span> руб.</h3>
+        <button class="checkout-btn" onclick="checkout()">
+            <i class="material-icons">shopping_cart_checkout</i> Оформить заказ
+        </button>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="/static/cart.js"></script>
+</body>
+</html>

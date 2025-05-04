@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль питомца</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Создание профиля питомца</h2>
+        <form id="petForm">
+            <div class="form-group">
+                <label for="name_pet">Имя питомца:</label>
+                <input type="text" id="name_pet" name="name_pet" required>
+            </div>
+            <div class="form-group">
+                <label for="name_type">Тип питомца:</label>
+                <input type="text" id="name_type" name="name_type" required>
+            </div>
+            <div class="form-group">
+                <label for="breed">Порода:</label>
+                <input type="text" id="breed" name="breed" required>
+            </div>
+            <div class="form-group">
+                <label for="age_m">Возраст (месяцы):</label>
+                <input type="number" id="age_m" name="age_m" min="0" max="11"required>
+            </div>
+            <div class="form-group">
+                <label for="age_y">Возраст (годы):</label>
+                <input type="number" id="age_y" name="age_y" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="allergies">Аллергии (через запятую):</label>
+                <input type="text" id="allergies" name="allergies" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Сохранить</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="form-group">
+        <button onclick="getAdvice()">Получить советы</button>
+    </div>
+    <div id="adviceResult"></div>
+
+    <script>
+        document.getElementById('petForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение формы
+
+            // Собираем данные из формы
+            const name_pet = document.getElementById('name_pet').value;
+            const name_type = document.getElementById('name_type').value;
+            const breed = document.getElementById('breed').value;
+            const age_m = document.getElementById('age_m').value;
+            const age_y = document.getElementById('age_y').value;
+            const allergies = document.getElementById('allergies').value;
+
+            // Отправляем данные на сервер
+            fetch('/save_pet_profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name_pet: name_pet,
+                    name_type: name_type,
+                    breed: breed,
+                    age_m: age_m,
+                    age_y: age_y,
+                    allergies: allergies
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Профиль питомца успешно сохранен!');
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+        });
+
+        function getAdvice() {
+            const petId = 1; // Замените на реальный ID питомца
+            fetch(`/get_advice/${petId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const adviceHTML = data.advice.map(adv => `<p>${adv}</p>`).join('');
+                    document.getElementById('adviceResult').innerHTML = `
+                        <h3>Советы для ${data.pet_name}:</h3>
+                        ${adviceHTML}
+                    `;
+                })
+                .catch(error => console.error('Ошибка:', error));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рекомендации по уходу за питомцами</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .breed-group {
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Рекомендации по уходу за питомцами</h1>
+
+        <div class="form-group">
+            <label for="animalType">Тип животного:</label>
+            <select id="animalType">
+                <option value="">-- Выберите тип --</option>
+                <option value="Кошка">Кошка</option>
+                <option value="Собака">Собака</option>
+                <option value="Птица">Птица</option>
+                <option value="Грызун">Грызун</option>
+                <option value="Рептилия">Рептилия</option>
+                <option value="Рыба">Рыба</option>
+                <option value="Экзотическое">Экзотическое</option>
+            </select>
+        </div>
+
+        <div id="breedContainer" class="form-group">
+            <div id="breedLoading" class="loading" style="display: none;">Загрузка пород...</div>
+            <div id="breedSelectContainer"></div>
+        </div>
+
+        <button id="getAdviceBtn" disabled>Получить совет</button>
+    </div>
+
+    <div id="result">
+        <div id="adviceContent"></div>
+    </div>
+
+    <script>
+        // DOM элементы
+        const animalTypeSelect = document.getElementById('animalType');
+        const breedContainer = document.getElementById('breedContainer');
+        const breedLoading = document.getElementById('breedLoading');
+        const breedSelectContainer = document.getElementById('breedSelectContainer');
+        const getAdviceBtn = document.getElementById('getAdviceBtn');
+        const resultDiv = document.getElementById('result');
+        const adviceContent = document.getElementById('adviceContent');
+
+        // Обработчик изменения типа животного
+        animalTypeSelect.addEventListener('change', async function() {
+            const animalType = this.value;
+
+            // Сбрасываем предыдущие значения
+            breedSelectContainer.innerHTML = '';
+            getAdviceBtn.disabled = true;
+            resultDiv.style.display = 'none';
+
+            if (!animalType) return;
+
+            try {
+                // Показываем индикатор загрузки
+                breedLoading.style.display = 'block';
+
+                // Запрашиваем породы для выбранного типа
+                const response = await fetch(`/get_breeds?animal_type=${encodeURIComponent(animalType)}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ошибка при загрузке пород');
+                }
+
+                // Создаем select для пород
+                const breedSelect = document.createElement('select');
+                breedSelect.id = 'breedSelect';
+                breedSelect.innerHTML = `
+                    <option value="">-- Выберите породу --</option>
+                    ${data.breeds.map(breed => `<option value="${breed}">${breed}</option>`).join('')}
+                `;
+
+                // Добавляем обработчик изменения породы
+                breedSelect.addEventListener('change', function() {
+                    getAdviceBtn.disabled = !this.value;
+                });
+
+                breedSelectContainer.appendChild(breedSelect);
+
+            } catch (error) {
+                breedSelectContainer.innerHTML = `
+                    <div class="error">Ошибка: ${error.message}</div>
+                `;
+            } finally {
+                breedLoading.style.display = 'none';
+            }
+        });
+
+        // Обработчик кнопки "Получить совет"
+        getAdviceBtn.addEventListener('click', async function() {
+            const breedSelect = document.getElementById('breedSelect');
+            const breed = breedSelect ? breedSelect.value : null;
+
+            if (!breed) {
+                alert('Пожалуйста, выберите породу');
+                return;
+            }
+
+            try {
+                getAdviceBtn.disabled = true;
+                getAdviceBtn.textContent = 'Загрузка...';
+
+                // Запрашиваем рекомендации по породе
+                const response = await fetch(`/get_advice_by_breed?breed=${encodeURIComponent(breed)}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ошибка при загрузке рекомендаций');
+                }
+
+                // Отображаем результат
+                adviceContent.innerHTML = `
+                    <h3>Рекомендации по уходу за ${data.animal_type} (${data.breed})</h3>
+                    <p>${data.care_recommendation}</p>
+                `;
+                resultDiv.style.display = 'block';
+
+            } catch (error) {
+                adviceContent.innerHTML = `
+                    <div class="error">Ошибка: ${error.message}</div>
+                `;
+                resultDiv.style.display = 'block';
+            } finally {
+                getAdviceBtn.disabled = false;
+                getAdviceBtn.textContent = 'Получить совет';
+            }
+        });
+    </script>
+</body>
+</html>

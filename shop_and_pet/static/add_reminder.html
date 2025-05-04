@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить напоминание</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Добавить напоминание</h2>
+        <form id="reminderForm">
+            <div class="form-group">
+                <label for="pet_id">ID питомца:</label>
+                <input type="number" id="pet_id" name="pet_id" required>
+            </div>
+            <div class="form-group">
+                <label for="procedure_type">Тип процедуры:</label>
+                <select id="procedure_type" name="procedure_type" required>
+                    <option value="вакцинация">Вакцинация</option>
+                    <option value="обработка">Обработка от паразитов</option>
+                    <option value="осмотр">Осмотр</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="procedure_name">Название процедуры:</label>
+                <select id="procedure_name" name="procedure_name" required>
+                    <option value="Прививка от бешенства">Прививка от бешенства</option>
+                    <option value="Прививка от чумы">Прививка от чумы</option>
+                    <option value="Обработка от блох">Обработка от блох</option>
+                    <option value="Обработка от глистов">Обработка от глистов</option>
+                    <option value="Плановый осмотр">Плановый осмотр</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="next_date">Дата:</label>
+                <input type="date" id="next_date" name="next_date" required>
+            </div>
+            <div class="form-group">
+                <label for="cycle_days">Повторять каждые (дней):</label>
+                <input type="number" id="cycle_days" name="cycle_days" placeholder="Оставьте пустым для разового">
+            </div>
+            <div class="form-group">
+                <label for="notes">Заметки:</label>
+                <textarea id="notes" name="notes"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit">Сохранить</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('reminderForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение формы
+
+            // Собираем данные из формы
+            const pet_id = document.getElementById('pet_id').value;
+            const procedure_type = document.getElementById('procedure_type').value;
+            const procedure_name = document.getElementById('procedure_name').value;
+            const next_date = document.getElementById('next_date').value;
+            const cycle_days = document.getElementById('cycle_days').value;
+            const notes = document.getElementById('notes').value;
+
+            // Отправляем данные на сервер
+            fetch('/add_reminder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    pet_id: pet_id,
+                    procedure_type: procedure_type,
+                    procedure_name: procedure_name,
+                    next_date: next_date,
+                    cycle_days: cycle_days,
+                    notes: notes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Напоминание успешно добавлено!');
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+        });
+    </script>
+</body>
+</html>

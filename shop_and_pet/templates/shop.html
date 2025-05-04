@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetShop - Магазин товаров для питомцев</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header>
+        <h1>PetShop - Магазин товаров для питомцев</h1>
+        <div class="header-controls">
+            <div class="filter-group">
+                <label for="animal-type-filter">Вид животного:</label>
+                <select id="animal-type-filter" class="filter-select">
+                    <option value="">Выберите вид животного</option>
+                    <option value="Кошка">Кошки</option>
+                    <option value="Собака">Собаки</option>
+                    <option value="Птица">Птицы</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="breed-filter">Порода:</label>
+                <select id="breed-filter" class="filter-select" disabled>
+                    <option value="">Сначала выберите вид животного</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="age-filter">Возраст:</label>
+                <select id="age-filter" class="filter-select">
+                    <option value="">Все возраста</option>
+                    <option value="1">Для молодых</option>
+                    <option value="2">Для взрослых</option>
+                    <option value="3">Для пожилых</option>
+                </select>
+            </div>
+
+            <a href="/cart" class="cart-link">
+                <span class="cart-icon">🛒</span>
+                Корзина (<span id="cart-count">0</span>)
+            </a>
+        </div>
+    </header>
+
+    <div class="product-types">
+        <button class="product-type-btn active" data-type="pet_food">Корма</button>
+        <button class="product-type-btn" data-type="pet_medicine">Лекарства и уход</button>
+    </div>
+
+    <div id="loading-spinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="no-products" class="no-products-message">
+        <p>Товары не найдены. Попробуйте изменить параметры фильтрации.</p>
+    </div>
+
+    <div id="products-container" class="products-grid">
+        <!-- Товары будут загружены здесь динамически -->
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="/static/shop.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить процедуру</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Добавить процедуру</h2>
+        <form id="procedureForm">
+            <div class="form-group">
+                <label for="pet_id">Имя питомца:</label>
+                <select id="pet_id" name="pet_id" required></select>
+            </div>
+            <div class="form-group">
+                <label for="procedure_name">Название процедуры:</label>
+                <select id="procedure_name" name="procedure_name" required>
+                    <option value="Прививка от бешенства">Прививка от бешенства</option>
+                    <option value="Прививка от чумы">Прививка от чумы</option>
+                    <option value="Обработка от блох">Обработка от блох</option>
+                    <option value="Обработка от глистов">Обработка от глистов</option>
+                    <option value="Плановый осмотр">Плановый осмотр</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="procedure_type">Тип процедуры:</label>
+                <select id="procedure_type" name="procedure_type" required>
+                    <option value="вакцинация">Вакцинация</option>
+                    <option value="обработка">Обработка от паразитов</option>
+                    <option value="осмотр">Осмотр</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="breed">Порода:</label>
+                <input type="text" id="breed" name="breed" required>
+            </div>
+            <div class="form-group">
+                <label for="name_type">Тип питомца:</label>
+                <input type="text" id="name_type" name="name_type" required>
+            </div>
+            <div class="form-group">
+                <label for="procedure_date">Дата процедуры:</label>
+                <input type="date" id="procedure_date" name="procedure_date" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Сохранить</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/get_pet_names')
+                .then(response => response.json())
+                .then(data => {
+                    const petSelect = document.getElementById('pet_id');
+                    data.forEach(pet => {
+                        const option = document.createElement('option');
+                        option.value = pet[0];
+                        option.textContent = pet[1];
+                        petSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Ошибка при загрузке списка питомцев:', error));
+        });
+
+        document.getElementById('procedureForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение формы
+
+            // Собираем данные из формы
+            const pet_id = document.getElementById('pet_id').value;
+            const procedure_name = document.getElementById('procedure_name').value;
+            const procedure_type = document.getElementById('procedure_type').value;
+            const breed = document.getElementById('breed').value;
+            const name_type = document.getElementById('name_type').value;
+            const procedure_date = document.getElementById('procedure_date').value;
+
+            // Отправляем данные на сервер
+            fetch('/add_procedure', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    pet_id: pet_id,
+                    procedure_name: procedure_name,
+                    procedure_type: procedure_type,
+                    breed: breed,
+                    name_type: name_type,
+                    procedure_date: procedure_date
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Процедура успешно добавлена!');
+                document.getElementById('procedureForm').reset(); // Очистка формы
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при добавлении процедуры');
+            });
+        });
+    </script>
+</body>
+</html>

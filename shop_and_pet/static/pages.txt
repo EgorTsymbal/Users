@@ -1,0 +1,6 @@
+http://127.0.0.1:5000/
+http://127.0.0.1:5000/static/add_procedure.html
+http://127.0.0.1:5000/static/add_reminder.html
+http://127.0.0.1:5000/static/reminders.html
+http://127.0.0.1:5000/static/pet_advice.html
+http://127.0.0.1:5000/static/get_recommendations_by_allergies.html

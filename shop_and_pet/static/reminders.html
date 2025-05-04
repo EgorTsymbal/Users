@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Напоминания для питомца</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group button {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+        .reminder-list {
+            margin-top: 20px;
+        }
+        .reminder-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Напоминания для питомца</h2>
+        <form id="reminderForm">
+            <div class="form-group">
+                <label for="pet_id">Имя питомца:</label>
+                <select id="pet_id" name="pet_id" required></select>
+            </div>
+            <div class="form-group">
+                <button type="submit">Показать напоминания</button>
+            </div>
+        </form>
+        <div id="reminderResult" class="reminder-list"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/get_pet_names')
+                .then(response => response.json())
+                .then(data => {
+                    const petSelect = document.getElementById('pet_id');
+                    data.forEach(pet => {
+                        const option = document.createElement('option');
+                        option.value = pet[0];
+                        option.textContent = pet[1];
+                        petSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Ошибка при загрузке списка питомцев:', error));
+        });
+
+        document.getElementById('reminderForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение формы
+
+            // Собираем данные из формы
+            const pet_id = document.getElementById('pet_id').value;
+
+            // Отправляем запрос на сервер
+            fetch(`/get_reminders/${pet_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    const reminderResult = document.getElementById('reminderResult');
+                    reminderResult.innerHTML = ''; // Очищаем предыдущие результаты
+
+                    if (data.reminders.length > 0) {
+                        data.reminders.forEach(reminder => {
+                            const reminderItem = document.createElement('div');
+                            reminderItem.className = 'reminder-item';
+                            reminderItem.innerHTML = `
+                                <h3>${reminder.procedure_name}</h3>
+                                <p>Тип: ${reminder.procedure_type}</p>
+                                <p>Дата: ${reminder.next_date}</p>
+                                <p>${reminder.notes || ''}</p>
+                            `;
+                            reminderResult.appendChild(reminderItem);
+                        });
+                    } else {
+                        reminderResult.innerHTML = '<p>Напоминаний нет.</p>';
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
+        });
+    </script>
+</body>
+</html>

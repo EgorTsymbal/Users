@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рекомендации по аллергиям</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .buttons button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .buttons button:hover {
+            background-color: #0056b3;
+        }
+        .recommendations {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .recommendation-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 10px;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .recommendation-card h2 {
+            font-size: 18px;
+            margin-top: 0;
+        }
+        .recommendation-card p {
+            font-size: 14px;
+            color: #555;
+        }
+        .recommendation-card .price {
+            font-size: 16px;
+            color: #007bff;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Выберите питомца</h1>
+        <select id="petId">
+            <option value="">-- Выберите питомца --</option>
+        </select>
+        <div class="buttons">
+            <button onclick="recommendFood()">Рекомендация корма</button>
+            <button onclick="recommendMedicine()">Рекомендация лекарства</button>
+        </div>
+        <div id="result" class="recommendations"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/get_pet_names')
+                .then(response => response.json())
+                .then(data => {
+                    const petSelect = document.getElementById('petId');
+                    data.forEach(pet => {
+                        const option = document.createElement('option');
+                        option.value = pet[0];
+                        option.textContent = pet[1];
+                        petSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Ошибка при загрузке списка питомцев:', error));
+        });
+
+        async function recommendFood() {
+            const petId = document.getElementById('petId').value;
+            try {
+                const response = await fetch(`/recommend_food?pet_id=${petId}`);
+                const data = await response.json();
+                displayRecommendations(data.recommendations, 'food');
+            } catch (error) {
+                console.error('Ошибка при получении рекомендации корма:', error);
+                document.getElementById('result').innerText = 'Ошибка при получении рекомендации корма';
+            }
+        }
+
+        async function recommendMedicine() {
+            const petId = document.getElementById('petId').value;
+            try {
+                const response = await fetch(`/recommend_medicine?pet_id=${petId}`);
+                const data = await response.json();
+                displayRecommendations(data.recommendations, 'medicine');
+            } catch (error) {
+                console.error('Ошибка при получении рекомендации лекарства:', error);
+                document.getElementById('result').innerText = 'Ошибка при получении рекомендации лекарства';
+            }
+        }
+
+        function displayRecommendations(recommendations, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+            if (recommendations.length === 0) {
+                resultDiv.innerText = type === 'food' ? 'Корм не найден' : 'Лекарство не найдено';
+                return;
+            }
+            recommendations.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'recommendation-card';
+                card.innerHTML = `
+                    <h2>${item.name}</h2>
+                    <p>${item.description}</p>
+                    <p class="price">${item.price} руб.</p>
+                `;
+                resultDiv.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
